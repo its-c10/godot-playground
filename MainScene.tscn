@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=2]
+[gd_scene load_steps=3 format=2]
 
 [ext_resource path="res://Player.tscn" type="PackedScene" id=1]
+[ext_resource path="res://Tile.tscn" type="PackedScene" id=2]
 
 [node name="MainScene" type="Node2D"]
 
@@ -8,5 +9,8 @@
 position = Vector2( 359.392, 212.652 )
 intertiaCounterForce = 800
 moveSpeed = 300
-stoppingPowerForce = 5
-maxSpeed = 200
+stoppingPowerForce = 800
+jumpForce = 700
+
+[node name="Tile" parent="." instance=ExtResource( 2 )]
+position = Vector2( 359.977, 300.866 )

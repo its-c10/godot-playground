@@ -5,9 +5,14 @@ public class Player : KinematicBody2D
 {
 
     //TODO: Introduce stopping power
+    private Sprite sprite;
+
+    private bool isSpriteFacingLeft;
 
     private Vector2 motion;
-    private int gravityForce = 0;
+
+    [Export]
+    private int gravityForce = 10;
 
     [Export]
     private int intertiaCounterForce = 300;
@@ -19,45 +24,73 @@ public class Player : KinematicBody2D
     public int stoppingPowerForce = 20;
 
     [Export]
-    public int maxSpeed;
+    public int maxLaterialSpeed = 100;
+
+    [Export]
+    public int maxVerticalSpeed = 50;
+
+    [Export]
+    public int jumpForce = 500;
 
     public override void _Ready()
     {
-        // Called every time the node is added to the scene
-        // Initialization here.
-        GD.Print("The player is ready!");
+        this.sprite = (Sprite)GetNode("Sprite");
     }
 
     public override void _Process(float delta)
     {
         motion.y += gravityForce;
     }
-
     public override void _PhysicsProcess(float delta)
     {
 
         bool isMovingLeft = Input.IsActionPressed("move_left");
         bool isMovingRight = Input.IsActionPressed("move_right");
 
-        if (isMovingLeft && motion.x > -maxSpeed)
+        dealWithChangeOfDirection(isMovingLeft, isMovingRight);
+        dealWithInputs(isMovingLeft, isMovingRight, delta);
+        dealWithIntertia(isMovingLeft, isMovingRight, delta);
+        dealWithGravity(delta);
+
+        motion = MoveAndSlide(motion, Vector2.Up);
+
+    }
+    private void dealWithInputs(bool isMovingLeft, bool isMovingRight, float delta)
+    {
+        // Moves the player left
+        if (isMovingLeft && motion.x > -maxLaterialSpeed)
         {
-            motion.x = Math.Max(motion.x - (moveSpeed * delta), -maxSpeed);
-            // They were just moving left
+            motion.x = Math.Max(motion.x - (moveSpeed * delta), -maxLaterialSpeed);
+            // Stopping force
             if (motion.x > 0)
             {
-                motion.x -= stoppingPowerForce;
+                motion.x -= (stoppingPowerForce * delta);
             }
         }
 
-        if (isMovingRight && motion.x < maxSpeed)
+        // Moves the player right
+        if (isMovingRight && motion.x < maxLaterialSpeed)
         {
-            motion.x = Math.Min(motion.x + (moveSpeed * delta), maxSpeed);
+            motion.x = Math.Min(motion.x + (moveSpeed * delta), maxLaterialSpeed);
+            // Stopping force
             if (motion.x < 0)
             {
-                motion.x += stoppingPowerForce;
+                motion.x += (stoppingPowerForce * delta);
             }
         }
 
+        bool isJumping = Input.IsActionJustPressed("jump");
+        if (isJumping && IsOnFloor())
+        {
+            GD.Print("Is Jumping");
+            motion.y -= jumpForce;
+            GD.Print("MOTION Y: " + motion.y);
+        }
+
+    }
+
+    private void dealWithIntertia(bool isMovingLeft, bool isMovingRight, float delta)
+    {
         // Counters Intertia
         if (!isMovingLeft && !isMovingRight)
         {
@@ -70,9 +103,25 @@ public class Player : KinematicBody2D
                 motion.x = Math.Min(motion.x + (intertiaCounterForce * delta), 0);
             }
         }
+    }
 
-        motion = MoveAndSlide(motion);
+    private void dealWithChangeOfDirection(bool isMovingLeft, bool isMovingRight)
+    {
+        // Changes the sprite's direction
+        if (isMovingLeft && !isSpriteFacingLeft)
+        {
+            isSpriteFacingLeft = true;
+        }
+        else if (isMovingRight && isSpriteFacingLeft)
+        {
+            isSpriteFacingLeft = false;
+        }
+        sprite.FlipH = isSpriteFacingLeft;
+    }
 
+    private void dealWithGravity(float delta)
+    {
+        motion.y = Math.Min(motion.y + (gravityForce * delta), maxVerticalSpeed);
     }
 
 }
