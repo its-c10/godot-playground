@@ -39,7 +39,7 @@ public class Player : KinematicBody2D
 
     public override void _Process(float delta)
     {
-        motion.y += gravityForce;
+        GD.Print("Motion Y: " + motion.y);
     }
     public override void _PhysicsProcess(float delta)
     {
@@ -82,9 +82,8 @@ public class Player : KinematicBody2D
         bool isJumping = Input.IsActionJustPressed("jump");
         if (isJumping && IsOnFloor())
         {
-            GD.Print("Is Jumping");
-            motion.y -= jumpForce;
-            GD.Print("MOTION Y: " + motion.y);
+            GD.Print("Motion Y: " + motion.y);
+            motion.y -= (jumpForce * delta);
         }
 
     }
@@ -121,6 +120,11 @@ public class Player : KinematicBody2D
 
     private void dealWithGravity(float delta)
     {
+        if (IsOnFloor())
+        {
+            motion.y = 0;
+            return;
+        }
         motion.y = Math.Min(motion.y + (gravityForce * delta), maxVerticalSpeed);
     }
 

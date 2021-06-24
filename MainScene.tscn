@@ -7,10 +7,12 @@
 
 [node name="Player" parent="." instance=ExtResource( 1 )]
 position = Vector2( 359.392, 212.652 )
+gravityForce = 250
 intertiaCounterForce = 800
 moveSpeed = 300
 stoppingPowerForce = 800
-jumpForce = 700
+maxVerticalSpeed = 500
+jumpForce = 400
 
 [node name="Tile" parent="." instance=ExtResource( 2 )]
 position = Vector2( 359.977, 300.866 )
